@@ -1,11 +1,84 @@
 from flask import Flask, jsonify, request
 import pandas as pd
+import sqlite3
 
 app = Flask(__name__)
+DB_NAME = 'data.db'
 
 # Load CSV files
 orders_df = pd.read_csv("data/orders.csv")
 products_df = pd.read_csv("data/products.csv")
+
+# ---------- Conversation Schema Logic ----------
+
+def get_or_create_user(username):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
+    user = cursor.fetchone()
+    if user:
+        user_id = user[0]
+    else:
+        cursor.execute("INSERT INTO users (username) VALUES (?)", (username,))
+        user_id = cursor.lastrowid
+        conn.commit()
+    conn.close()
+    return user_id
+
+def create_session(user_id):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO sessions (user_id) VALUES (?)", (user_id,))
+    session_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return session_id
+
+@app.route("/start_session", methods=["POST"])
+def start_session():
+    data = request.get_json()
+    username = data.get("username")
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+
+    user_id = get_or_create_user(username)
+    session_id = create_session(user_id)
+    return jsonify({"session_id": session_id})
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.get_json()
+    session_id = data.get("session_id")
+    user_input = data.get("message")
+    if not session_id or not user_input:
+        return jsonify({"error": "Session ID and message required"}), 400
+
+    # Simple echo bot logic (replace with AI later)
+    bot_response = f"You said: {user_input}"
+
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO conversations (session_id, user_input, bot_response)
+        VALUES (?, ?, ?)
+    ''', (session_id, user_input, bot_response))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"response": bot_response})
+
+@app.route("/conversations/<int:session_id>", methods=["GET"])
+def get_conversations(session_id):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_input, bot_response, timestamp FROM conversations WHERE session_id = ? ORDER BY timestamp ASC", (session_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    return jsonify([
+        {"user": row[0], "bot": row[1], "timestamp": row[2]} for row in rows
+    ])
+
+# ---------- CSV-based E-commerce Endpoints ----------
 
 @app.route('/')
 def home():
@@ -15,7 +88,6 @@ def home():
 def top_products():
     top = orders_df.groupby('product_id')['quantity'].sum().sort_values(ascending=False).head(5)
     top = top.reset_index()
-
     merged = pd.merge(top, products_df, on='product_id')[['product_name', 'quantity']]
     return jsonify(merged.to_dict(orient='records'))
 
