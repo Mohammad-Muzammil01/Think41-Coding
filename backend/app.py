@@ -1,4 +1,6 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
+
 import pandas as pd
 import sqlite3
 import os
@@ -10,6 +12,8 @@ load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 app = Flask(__name__)
+CORS(app)
+
 DB_NAME = 'data.db'
 
 # Load CSV files

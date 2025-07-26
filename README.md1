@@ -1,0 +1,41 @@
+# Conversational AI Project
+
+## 🚀 Tech Stack
+- React (Frontend)
+- Flask (Backend)
+- MySQL (Database)
+- Docker & Docker Compose
+
+## 🔧 Setup
+
+### 1. Prerequisites
+- Docker & Docker Compose installed
+
+### 2. Running the App
+
+```bash
+docker-compose up --build
+
+
+3. Environment Variables
+Add your OpenAI or Groq key inside the .env or in docker-compose.yml under backend -> environment.
+
+✅ Milestones Covered
+✅ Backend + Frontend Dockerized
+
+✅ MySQL Persistent Storage
+
+✅ Full Stack Integration with Docker Compose
+
+yaml
+Copy
+Edit
+
+---
+
+### ✅ Final Step: Run the Application
+
+In the root folder:
+
+```bash
+docker-compose up --build
