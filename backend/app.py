@@ -1,6 +1,13 @@
 from flask import Flask, jsonify, request
 import pandas as pd
 import sqlite3
+import os
+from dotenv import load_dotenv
+import requests
+
+
+load_dotenv()
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 app = Flask(__name__)
 DB_NAME = 'data.db'
@@ -8,6 +15,22 @@ DB_NAME = 'data.db'
 # Load CSV files
 orders_df = pd.read_csv("data/orders.csv")
 products_df = pd.read_csv("data/products.csv")
+
+def query_groq_llm(prompt):
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "mixtral-8x7b-32768",
+        "messages": [
+            {"role": "system", "content": "You're a helpful assistant for an e-commerce platform."},
+            {"role": "user", "content": prompt}
+        ]
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()["choices"][0]["message"]["content"]
 
 # ---------- Conversation Schema Logic ----------
 
@@ -50,12 +73,19 @@ def chat():
     data = request.get_json()
     session_id = data.get("session_id")
     user_input = data.get("message")
+
     if not session_id or not user_input:
         return jsonify({"error": "Session ID and message required"}), 400
 
-    # Simple echo bot logic (replace with AI later)
-    bot_response = f"You said: {user_input}"
+    # 🔥 Generate response using Groq LLM
+    prompt = f"""User said: '{user_input}'. 
+You are a helpful assistant for an e-commerce platform. 
+If you don't have enough information, ask clarifying questions. 
+Otherwise, give a helpful response using your knowledge or the e-commerce data."""
+    
+    bot_response = query_groq_llm(prompt)
 
+    # Save the conversation to the DB
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''

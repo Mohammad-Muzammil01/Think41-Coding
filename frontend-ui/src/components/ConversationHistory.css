@@ -1,0 +1,32 @@
+.conversation-history {
+  width: 200px;
+  background: #f5f5f5;
+  padding: 10px;
+  border-right: 1px solid #ccc;
+  overflow-y: auto;
+}
+
+.conversation-history h4 {
+  margin-bottom: 10px;
+}
+
+.conversation-history ul {
+  list-style: none;
+  padding: 0;
+}
+
+.conversation-history li {
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+
+.conversation-history li:hover {
+  background-color: #ddd;
+}
+
+.conversation-history li.active {
+  background-color: #bde0fe;
+  font-weight: bold;
+}
