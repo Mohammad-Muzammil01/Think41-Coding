@@ -1,0 +1,7 @@
+product_id,product_name,category,price,stock
+P001,Classic T-Shirt,Clothing,19.99,50
+P002,Slim Jeans,Clothing,39.99,25
+P003,Cotton Hoodie,Clothing,49.99,15
+P004,Running Shoes,Shoes,89.99,30
+P005,Baseball Cap,Accessories,14.99,60
+

@@ -1,0 +1,11 @@
+order_id,customer_id,product_id,quantity,status,order_date
+1001,C001,P001,2,Delivered,2024-06-15
+1002,C002,P002,1,Delivered,2024-06-16
+1003,C003,P003,1,In Transit,2024-06-18
+1004,C004,P001,3,Delivered,2024-06-20
+1005,C005,P005,1,Shipped,2024-06-22
+1006,C006,P001,2,Delivered,2024-06-25
+1007,C007,P004,1,Delivered,2024-06-26
+1008,C001,P003,2,Shipped,2024-06-28
+1009,C002,P001,1,In Transit,2024-06-29
+1010,C003,P002,1,Delivered,2024-07-01
